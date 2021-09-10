@@ -3,6 +3,9 @@ import pathlib
 import click
 
 
+SUPORTED_FILETYPE = ".txt"
+
+
 @click.command()
 @click.version_option("0.1.0", '-v', '--version')
 @click.help_option('-h', '--help')
@@ -10,10 +13,11 @@ import click
 def silkie(input):
     """Static site generator with the smoothness of silk"""
     if os.path.isfile(input):
-        body = process_text_file(input)
-        generate_static_file(pathlib.Path(input).stem, body)
+        generate_static_file(input)
     if os.path.isdir(input):
-        print("Feature is not yet implemented")
+        for filename in os.listdir(input):
+            if filename.endswith(SUPORTED_FILETYPE):
+                generate_static_file(os.path.join(input, filename))
 
 
 def process_text_file(file_path):
@@ -26,7 +30,8 @@ def process_text_file(file_path):
     return ''.join(body)
 
 
-def generate_static_file(title, body):
+def generate_static_file(file_path):
+    title = pathlib.Path(file_path).stem
     html = f"""
     <!doctype html>
     <html lang="en">
@@ -36,14 +41,14 @@ def generate_static_file(title, body):
             <meta name="viewport" content="width=device-width, initial-scale=1">
         </head>
         <body>
-            {body}
+            { process_text_file(file_path) }
         </body>
     </html>
     """
     dist_directory_path = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "dist")
     os.makedirs(dist_directory_path, exist_ok=True)
-    with open(os.path.join(dist_directory_path, title + ".html"), 'x') as static_file:
+    with open(os.path.join(dist_directory_path, title + ".html"), 'w') as static_file:
         static_file.write(html)
 
 
