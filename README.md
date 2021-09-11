@@ -1,11 +1,12 @@
 # Silkie
 > Static site generator with the smoothness of silk
 
-Silkie is a simple and smooth static site generator. It can currently display the version of 
-the application and a standard help/usage guide.
+Silkie is a simple and smooth static site generator. It can parse text files (".txt" files) and 
+generate HTML files from them.
 
 ## Features
-[To be updated]
+- Generate HTML file(s) from a specified file/directory
+- Detect the title of a file if it's the first line followed by two blank lines
 
 ## Installation
 [To be updated]
