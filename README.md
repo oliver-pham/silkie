@@ -7,6 +7,7 @@ generate HTML files from them.
 ## Features
 - Generate HTML file(s) from a specified file/directory
 - Detect the title of a file if it's the first line followed by two blank lines
+- Add custom styling to static site
 
 ## Installation
 [To be updated]
