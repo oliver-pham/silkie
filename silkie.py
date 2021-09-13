@@ -13,8 +13,9 @@ DIST_DIRECTORY_PATH = os.path.join(
 @click.command()
 @click.version_option("0.1.0", '-v', '--version')
 @click.help_option('-h', '--help')
-@click.option('-i', '--input', required=True, type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True), help='Path to the file/folder to be processed')
-def silkie(input):
+@click.option('-i', '--input', required=True, type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True), help='Path to the input file/folder')
+@click.option('-s', '--stylesheet', help='URL path to a stylesheet')
+def silkie(input, stylesheet):
     """Static site generator with the smoothness of silk"""
     # Clean build
     shutil.rmtree(DIST_DIRECTORY_PATH, ignore_errors=True)
@@ -22,11 +23,11 @@ def silkie(input):
     os.makedirs(DIST_DIRECTORY_PATH)
     # Generate static file(s)
     if os.path.isfile(input):
-        generate_static_file(input)
+        generate_static_file(input, stylesheet)
     if os.path.isdir(input):
         for filename in os.listdir(input):
             if filename.endswith(SUPORTED_FILETYPE):
-                generate_static_file(os.path.join(input, filename))
+                generate_static_file(os.path.join(input, filename), stylesheet)
 
 
 def get_html_paragraph(content: str) -> str:
@@ -75,7 +76,7 @@ def process_text_file(file_path: str, first_line_is_title: bool = False) -> str:
     return ''.join(paragraphs)
 
 
-def generate_static_file(file_path: str) -> None:
+def generate_static_file(file_path: str, stylesheet_url: str) -> None:
     """
     Generate a single HTML file inside `dist/` folder.
     """
@@ -85,6 +86,7 @@ def generate_static_file(file_path: str) -> None:
     <html lang="en">
         <head>
             <meta charset="utf-8">
+            <link rel="stylesheet" href="{stylesheet_url if stylesheet_url != None else ''}">
             <title>{title}</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
         </head>
