@@ -4,16 +4,52 @@
 Silkie is a simple and smooth static site generator. It can parse text files (".txt" files) and 
 generate HTML files from them.
 
+```
+$ python3 silkie.py -h
+Usage: silkie.py [OPTIONS]
+
+  Static site generator with the smoothness of silk
+
+Options:
+  -v, --version          Show the version and exit.
+  -h, --help             Show this message and exit.
+  -i, --input PATH       Path to the input file/folder  [required]
+  -s, --stylesheet TEXT  URL path to a stylesheet
+```
+
 ## Features
-- Generate HTML file(s) from a specified file/directory
+- Generate HTML file(s) from a specified text file/directory
 - Detect the title of a file if it's the first line followed by two blank lines
 - Add custom styling to static site
 
-## Installation
-[To be updated]
+## Getting Started
+
+### Prerequisites
+
+- Python >= 3.9.0
+- Pip >= 21.2.4
+
+### Installation
+
+1. Clone the repository
+2. Create a virtual environment
+    ```
+    cd silkie && python3 -m venv .
+    ```
+3. Activate your virtual environment  
+    - **Windows:** `bin\Scripts\activate.bat`
+    - **Unix or MacOS**: `source bin/activate`
+4. Install the dependency packages
+    ```
+    pip3 install -r requirements.txt
+    ```
 
 ## Usage
-[To be updated]
+1. Activate your virtual environment (only if you have not done that)
+2. Run the program
+    ```
+    python3 silkie.py -h
+    ```
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
