@@ -32,25 +32,25 @@ Options:
 - Pip >= 21.2.4
 
 ### Installation
-
+**Note**: if you have both versions of Python (2 & 3) installed, then you should replace every `python` command with `python3` and `pip` command with `pip3`.
 1. Clone the repository
 2. Create a virtual environment
     ```
-    cd silkie && python3 -m venv .
+    cd silkie && python -m venv .
     ```
 3. Activate your virtual environment  
     - **Windows:** `bin\Scripts\activate.bat`
     - **Unix or MacOS**: `source bin/activate`
 4. Install the dependency packages
     ```
-    pip3 install -r requirements.txt
+    pip install -r requirements.txt
     ```
 
 ## Usage
 1. Activate your virtual environment (only if you have not done that)
 2. Run the program
     ```
-    python3 silkie.py -h
+    python silkie.py -h
     ```
 
 ## Contributing
