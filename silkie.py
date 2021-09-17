@@ -60,17 +60,10 @@ def get_title(file_path: str) -> str:
     If there is a title, it will be the first line followed by two blank lines.
     """
     with open(file_path, 'r', encoding='utf-8') as f:
-        MAX_BLANK_LINES = 2
-        blank_lines = 0
-        lines = f.read().splitlines()
-
-        for line in lines[:MAX_BLANK_LINES + 1]:
-            if line.strip() == '':
-                blank_lines += 1
-
-        if (blank_lines == MAX_BLANK_LINES):
-            return lines[0]
-
+        # regEx matches everything except line terminators from the beginning and 3 line-feed characters (2 new lines)
+        title = re.compile(r'^.+(\n\n\n)').search(f.read())
+        if(title != None):
+            return title.group(0).strip()
     return ''
 
 
@@ -98,10 +91,8 @@ def get_html_head(doc, title: str, file_path: str, stylesheet_url: str) -> None:
 def get_html_paragraphs(line, title: str, file_path: str) -> None:
     """Get all paragraphs from text file and append them to the HTML document"""
     with open(file_path, 'r', encoding='utf-8') as f:
-        paragraphs = f.read().split("\n\n")
-
+        paragraphs = f.read()[len(title)+1 : -1].strip().split("\n\n")
         if title:
-            paragraphs.remove(title)
             line('h1', title)
 
         for p in paragraphs:
