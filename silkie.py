@@ -63,7 +63,7 @@ def get_title(file_path: str) -> str:
         # regEx matches everything except line terminators from the beginning and 3 line-feed characters (2 new lines)
         title = re.compile(r'^.+(\r?\n\r?\n\r?\n)').search(f.read())
         if(title != None):
-            return title.group().strip()
+            return title.group(0).strip()
     return ''
 
 
