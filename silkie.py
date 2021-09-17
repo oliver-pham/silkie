@@ -92,7 +92,6 @@ def get_html_paragraphs(line, title: str, file_path: str) -> None:
     """Get all paragraphs from text file and append them to the HTML document"""
     with open(file_path, 'r', encoding='utf-8') as f:
         paragraphs = f.read()[len(title)+1 : -1].strip().split("\n\n")
-        print(paragraphs)
         if title:
             line('h1', title)
 
