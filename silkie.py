@@ -2,6 +2,7 @@ import pathlib
 import shutil
 import glob
 import click
+import re
 from os import path, makedirs
 from yattag import Doc, indent
 
@@ -74,6 +75,7 @@ def get_title(file_path: str) -> str:
 
 
 def get_filename(file_path: str) -> str:
+    file_path = re.compile(r'([^\/]+$)').search(file_path).group()
     """Extract the name of the file without (all) its extension(s)"""
     return pathlib.Path(file_path.split('.')[0]).stem
 
