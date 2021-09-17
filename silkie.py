@@ -2,6 +2,7 @@ import pathlib
 import shutil
 import glob
 import click
+import re
 from os import path, makedirs
 from yattag import Doc, indent
 
@@ -58,7 +59,7 @@ def get_title(file_path: str) -> str:
     Get the title of the file based on its position in the file.
     If there is a title, it will be the first line followed by two blank lines.
     """
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         MAX_BLANK_LINES = 2
         blank_lines = 0
         lines = f.read().splitlines()
@@ -74,6 +75,7 @@ def get_title(file_path: str) -> str:
 
 
 def get_filename(file_path: str) -> str:
+    file_path = re.compile(r'([^\/]+$)').search(file_path).group()
     """Extract the name of the file without (all) its extension(s)"""
     return pathlib.Path(file_path.split('.')[0]).stem
 
@@ -95,7 +97,7 @@ def get_html_head(doc, title: str, file_path: str, stylesheet_url: str) -> None:
 
 def get_html_paragraphs(line, title: str, file_path: str) -> None:
     """Get all paragraphs from text file and append them to the HTML document"""
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         paragraphs = f.read().split("\n\n")
 
         if title:
@@ -123,7 +125,7 @@ def get_html(file_path: str, stylesheet_url: str) -> str:
 
 def write_static_file(filename: str, content: str) -> None:
     """Write the static file to `dist/` directory"""
-    with open(path.join(DIST_DIRECTORY_PATH, filename + ".html"), 'w+') as static_file:
+    with open(path.join(DIST_DIRECTORY_PATH, filename + ".html"), 'w+', encoding='utf-8') as static_file:
         static_file.write(content)
         click.echo(
             f"{TextColor.OKGREEN}{TextColor.BOLD}\u2713 Success: Static file for '{filename}' is generated in dist/{TextColor.ENDC}")
