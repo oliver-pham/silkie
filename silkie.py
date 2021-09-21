@@ -84,8 +84,10 @@ def get_title(file_path: str) -> str:
 def get_filename(file_path: str) -> str:
     file_path = re.compile(r'([^\/]+$)').search(file_path).group()
     """Extract the name of the file without (all) its extension(s)"""
-    return pathlib.Path(file_path.split('.')[1]).stem
-
+    return pathlib.Path(file_path.split('.')[0]).stem
+    """ 
+    linux distribution - works
+    Windows 11 -seems to be only a windows 11 issue with above line being pathlib.Path(file_path.split('.')[1]).stem to work"""
 
 def get_html_head(doc, title: str, file_path: str, stylesheet_url: str) -> None:
     """Get the metadata of the file and append them to the HTML document"""
@@ -114,9 +116,8 @@ def get_html_paragraphs(line, title: str, file_path: str) -> None:
 def get_html_paragraphs_parsewithmd(line, title: str, file_path: str) -> None:
     """ Append the approapriate markdown properties, .md headers, lists, links, images, tables"""
     with open(file_path, 'r',  encoding='utf-8') as f:
-        paragraphs = f.read().split('\n')
+        paragraphs = f.read().split('\n\n')
         for p in paragraphs: 
-            if p != '\n':
                 if p.startswith('#'): # starts with certain headers in markdown
                     if p.startswith('# '):
                         p = p.replace('# ', '', 1)
@@ -131,21 +132,36 @@ def get_html_paragraphs_parsewithmd(line, title: str, file_path: str) -> None:
                         p = p.replace('#', '', 1)
                         line('h4', p)
                 elif p.startswith('!['): # starts with image
-                    p = p.replace('![', '<a href="', 1)
-                    p = p.replace('](', '">', 1)
-                    p = p.replace(')', '</a>', 1)
-                    p = p.join('\n')
-                    line('p', p)
+                    p = p.replace('![', '', 1)
+                    parts = p.split('](')
+                    if len(parts) > 1:
+                        line('img', href=parts[1], text_content=parts[0])
+                    else:
+                        line('img', text_content=parts[0])
+                elif p.startswith('['): # starts with links
+                    p = p.replace('[', '', 1)
+                    p = p.replace('(', '', 1)
+                    p = p.replace(')', '', 1)
+                    parts = p.split(']')
+                    if len(parts) > 1:
+                        line('a', href=parts[1], text_content=parts[0])
+                    else:
+                        line('a', href=parts[0], text_content="link")
                 elif p.startswith('**'): # bold text
-                    p = p.replace('__', '', 1)
+                    p = p.replace('**', '', 2)
                     line('b', p)
                 elif p.startswith('__'): # bold text version 2
-                    p = p.replace('**', '', 1)
+                    p = p.replace('__', '', 2)
                     line('b', p)
+                elif p.startswith('*'): # italics text
+                    p = p.replace('*', '', 2)
+                    line('i', p)
+                elif p.startswith('_'): # italics text version 2
+                    p = p.replace('_', '', 2)
+                    line('i', p)
                 else:
                     p = p.replace('\n', '<br>', 1)
                     line('p', p)
-            
 
 
 def get_html(file_path: str, stylesheet_url: str, extension: str) -> str:
