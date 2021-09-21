@@ -1,6 +1,7 @@
 import pathlib
 import shutil
 import glob
+from typing import AnyStr
 import click
 import re
 from os import path, makedirs
@@ -8,6 +9,7 @@ from yattag import Doc, indent
 
 
 SUPORTED_FILE_EXTENSION = ".txt"
+SUPORTED_FILE_EXTENSION2 = ".md"
 DIST_DIRECTORY_PATH = path.join(
     path.dirname(path.realpath(__file__)), "dist")
 
@@ -38,17 +40,29 @@ def silkie(input, stylesheet):
         # Create build folder
         makedirs(DIST_DIRECTORY_PATH, exist_ok=True)
         # Generate static file(s)
+        # TODO: need to refactor the code to be shorter but should be fine for now
         if path.isfile(input):
             if stylesheet:
-                generate_static_file(input, stylesheet)
+                generate_static_file(SUPORTED_FILE_EXTENSION, stylesheet)
             else:
-                generate_static_file(input)
+                generate_static_file(input, SUPORTED_FILE_EXTENSION)
+        if path.isfile(input):
+            if stylesheet:
+                generate_static_file(SUPORTED_FILE_EXTENSION2, stylesheet)
+            else:
+                generate_static_file(input, SUPORTED_FILE_EXTENSION2)
         if path.isdir(input):
-            for filepath in glob.glob(path.join(input, "*" + SUPORTED_FILE_EXTENSION)):
+           for filepath in glob.glob(path.join(input, "*" + SUPORTED_FILE_EXTENSION)):
                 if stylesheet:
-                    generate_static_file(filepath, stylesheet)
+                    generate_static_file(filepath, SUPORTED_FILE_EXTENSION, stylesheet)
                 else:
-                    generate_static_file(filepath)
+                    generate_static_file(filepath, SUPORTED_FILE_EXTENSION)
+        if path.isdir(input):
+            for filepath in glob.glob(path.join(input, "*" + SUPORTED_FILE_EXTENSION2)):
+                if stylesheet:
+                    generate_static_file(filepath, SUPORTED_FILE_EXTENSION2, stylesheet)
+                else:
+                    generate_static_file(filepath, SUPORTED_FILE_EXTENSION2)
     except OSError as e:
         click.echo(
             f"{TextColor.FAIL}\u2715 Error: Build directory can't be created!{TextColor.ENDC}")
@@ -70,7 +84,7 @@ def get_title(file_path: str) -> str:
 def get_filename(file_path: str) -> str:
     file_path = re.compile(r'([^\/]+$)').search(file_path).group()
     """Extract the name of the file without (all) its extension(s)"""
-    return pathlib.Path(file_path.split('.')[0]).stem
+    return pathlib.Path(file_path.split('.')[1]).stem
 
 
 def get_html_head(doc, title: str, file_path: str, stylesheet_url: str) -> None:
@@ -94,13 +108,49 @@ def get_html_paragraphs(line, title: str, file_path: str) -> None:
         paragraphs = f.read()[len(title)+1 : -1].strip().split("\n\n")
         if title:
             line('h1', title)
-
         for p in paragraphs:
             line('p', p)
 
+def get_html_paragraphs_parsewithmd(line, title: str, file_path: str) -> None:
+    """ Append the approapriate markdown properties, .md headers, lists, links, images, tables"""
+    with open(file_path, 'r',  encoding='utf-8') as f:
+        paragraphs = f.read().split('\n')
+        for p in paragraphs: 
+            if p != '\n':
+                if p.startswith('#'): # starts with certain headers in markdown
+                    if p.startswith('# '):
+                        p = p.replace('# ', '', 1)
+                        line('h1', p)
+                    elif p.startswith('## '):
+                        p = p.replace('## ', '', 1)
+                        line('h2', p)
+                    elif p.startswith('### '):
+                        p = p.replace('### ', '', 1)
+                        line('h3', p)
+                    else:
+                        p = p.replace('#', '', 1)
+                        line('h4', p)
+                elif p.startswith('!['): # starts with image
+                    p = p.replace('![', '<a href="', 1)
+                    p = p.replace('](', '">', 1)
+                    p = p.replace(')', '</a>', 1)
+                    p = p.join('\n')
+                    line('p', p)
+                elif p.startswith('**'): # bold text
+                    p = p.replace('__', '', 1)
+                    line('b', p)
+                elif p.startswith('__'): # bold text version 2
+                    p = p.replace('**', '', 1)
+                    line('b', p)
+                else:
+                    p = p.replace('\n', '<br>', 1)
+                    line('p', p)
+            
 
-def get_html(file_path: str, stylesheet_url: str) -> str:
+
+def get_html(file_path: str, stylesheet_url: str, extension: str) -> str:
     """Return an indented HTML document with the content of the file"""
+    
     doc, tag, text, line = Doc().ttl()
     title = get_title(file_path)
 
@@ -109,8 +159,10 @@ def get_html(file_path: str, stylesheet_url: str) -> str:
         doc.attr(lang='en')
         get_html_head(doc, title, file_path, stylesheet_url)
         with tag('body'):
-            get_html_paragraphs(line, title, file_path)
-
+            if extension == ".txt":
+                get_html_paragraphs(line, title, file_path)
+            elif extension == '.md':
+                get_html_paragraphs_parsewithmd(line, title, file_path)
     return indent(doc.getvalue())
 
 
@@ -122,14 +174,13 @@ def write_static_file(filename: str, content: str) -> None:
             f"{TextColor.OKGREEN}{TextColor.BOLD}\u2713 Success: Static file for '{filename}' is generated in dist/{TextColor.ENDC}")
 
 
-def generate_static_file(file_path: str, stylesheet_url: str = '') -> None:
+def generate_static_file(file_path: str, extension: str, stylesheet_url: str = '') -> None:
     """
     Parse a text file and generate a single HTML file from its content.
     The generated files should be found inside `dist/` directory
     """
-    html = get_html(file_path, stylesheet_url)
+    html = get_html(file_path, stylesheet_url, extension)
     write_static_file(get_filename(file_path), content=html)
-
 
 if __name__ == '__main__':
     silkie()
