@@ -10,6 +10,7 @@ from yattag import Doc, indent
 
 SUPORTED_FILE_EXTENSION = ".txt"
 SUPORTED_FILE_EXTENSION2 = ".md"
+
 DIST_DIRECTORY_PATH = path.join(
     path.dirname(path.realpath(__file__)), "dist")
 
@@ -42,27 +43,30 @@ def silkie(input, stylesheet):
         # Generate static file(s)
         # TODO: need to refactor the code to be shorter but should be fine for now
         if path.isfile(input):
-            if stylesheet:
-                generate_static_file(SUPORTED_FILE_EXTENSION, stylesheet)
-            else:
-                generate_static_file(input, SUPORTED_FILE_EXTENSION)
-        if path.isfile(input):
-            if stylesheet:
-                generate_static_file(SUPORTED_FILE_EXTENSION2, stylesheet)
-            else:
-                generate_static_file(input, SUPORTED_FILE_EXTENSION2)
+            print(pathlib.Path(input).suffix)
+            if pathlib.Path(input).suffix == '.txt':
+                if stylesheet:
+                    generate_static_file(SUPORTED_FILE_EXTENSION, stylesheet)
+                else:
+                    generate_static_file(input, SUPORTED_FILE_EXTENSION)
+            elif pathlib.Path(input).suffix == '.md':    
+                if stylesheet:
+                    generate_static_file(SUPORTED_FILE_EXTENSION, stylesheet)
+                else:
+                    generate_static_file(input, SUPORTED_FILE_EXTENSION2)
+                
         if path.isdir(input):
-           for filepath in glob.glob(path.join(input, "*" + SUPORTED_FILE_EXTENSION)):
+            for filepath in glob.glob(path.join(input, "*" + SUPORTED_FILE_EXTENSION)):
                 if stylesheet:
                     generate_static_file(filepath, SUPORTED_FILE_EXTENSION, stylesheet)
                 else:
                     generate_static_file(filepath, SUPORTED_FILE_EXTENSION)
-        if path.isdir(input):
             for filepath in glob.glob(path.join(input, "*" + SUPORTED_FILE_EXTENSION2)):
                 if stylesheet:
                     generate_static_file(filepath, SUPORTED_FILE_EXTENSION2, stylesheet)
                 else:
                     generate_static_file(filepath, SUPORTED_FILE_EXTENSION2)
+                    
     except OSError as e:
         click.echo(
             f"{TextColor.FAIL}\u2715 Error: Build directory can't be created!{TextColor.ENDC}")
