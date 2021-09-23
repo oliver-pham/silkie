@@ -1,7 +1,7 @@
 # Silkie
 > Static site generator with the smoothness of silk
 
-Silkie is a simple and smooth static site generator. It can parse text files (".txt" files) and 
+Silkie is a simple and smooth static site generator. It can parse text files (".txt" or ".md" files) and 
 generate HTML files from them.
 
 Check out the [demo](https://oliver-pham.github.io/silkie/dist/The%20Adventure%20of%20the%20Speckled%20Band) generated from this [text file](https://raw.githubusercontent.com/Seneca-CDOT/topics-in-open-source-2021/main/release-1/Sherlock-Holmes-Selected-Stories/The%20Adventure%20of%20the%20Speckled%20Band.txt) (with help from [new.css](https://newcss.net/)).
@@ -51,6 +51,9 @@ Options:
 2. Run the program
     ```
     python silkie.py -h
+
+    Other examples:
+      python silkie.py -i examples/md/markdowntest1.md 
     ```
 
 ## Contributing
