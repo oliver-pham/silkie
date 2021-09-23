@@ -1,4 +1,4 @@
-# h1 Heading 8-)
+# h1 Heading
 ## h2 Heading
 ### h3 Heading
 
@@ -11,37 +11,22 @@ Enable typographer option to see result.
 
 ## Emphasis
 
+
+some text before **This is bold text** some text after
 **This is bold text**
 
+some text before __This is bold text__ some text after
 __This is bold text__
 
-*This is italic text*
 
-_This is italic text_
+some text before   *This is italic text*
 
-~~Strikethrough~~
-
-+ Create a list by starting a line with `+`, `-`, or `*`
-+ Sub-lists are made by indenting 2 spaces:
-  - Marker character change forces new list start:
-    * Ac tristique libero volutpat at
-    + Facilisis in pretium nisl aliquet
-    - Nulla volutpat aliquam velit
-+ Very easy!
+_This is italic text_ some text after
 
 Block code "fences"
-
 ```
 Sample text here...
 ```
-
-## Tables
-
-| Option | Description |
-| ------ | ----------- |
-| data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
 
 ## Links
 
@@ -51,10 +36,6 @@ Sample text here...
 
 Autoconverted link https://github.com/nodeca/pica (enable linkify to see)
 
-## Images
-
-![Minion](https://octodex.github.com/images/minion.png)
-![Stormtroopocat](https://octodex.github.com/images/stormtroopocat.jpg "The Stormtroopocat")
 
 Like links, Images also have a footnote style syntax
 
