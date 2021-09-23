@@ -84,7 +84,12 @@ def get_filename(file_path: str) -> str:
     """Extract the name of the file without (all) its extension(s)"""
     # ISSUE
     # add a note to your potential issue with code here for empty name files
-    return pathlib.Path(file_path.split('.')[1]).stem
+    if pathlib.Path(file_path.split('.')[0]).stem == ".md" or pathlib.Path(file_path.split('.')[0]).stem == ".txt":
+        return pathlib.Path(file_path.split('.')[0]).stem
+    elif pathlib.Path(file_path.split('.')[1]).stem == ".md" or pathlib.Path(file_path.split('.')[1]).stem == ".md":
+        return pathlib.Path(file_path.split('.')[1]).stem
+    else:
+        return pathlib.Path(file_path.split('.')[0]).stem
     """ 
     linux distribution - works
     Windows 11 -seems to be only a windows 11 issue with above line being pathlib.Path(file_path.split('.')[1]).stem to work"""
@@ -170,10 +175,8 @@ def get_html_paragraphs_parsewithmd(line, tag, file_path: str) -> None:
 
 def get_html(file_path: str, stylesheet_url: str, extension: str) -> str:
     """Return an indented HTML document with the content of the file"""
-    print(extension)
     doc, tag, text, line = Doc().ttl()
     title = get_title(file_path)
-
     doc.asis('<!DOCTYPE html>')
     with tag('html'):
         doc.attr(lang='en')
