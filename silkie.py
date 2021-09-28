@@ -123,135 +123,135 @@ def get_html_paragraphs_parsewithmd(line, title: str, tag, file_path: str) -> No
     with open(file_path, 'r',  encoding='utf-8') as f:
         paragraphs = f.read().strip().split("\n\n")
         for p in paragraphs: 
-                if p.startswith('#'): # starts with certain headers in markdown
-                    if p.startswith('# '):
-                        p = p.replace('# ', '', 1)
-                        line('h1', p)
-                    elif p.startswith('## '):
-                        p = p.replace('## ', '', 1)
-                        line('h2', p)
-                    elif p.startswith('### '):
-                        p = p.replace('### ', '', 1)
-                        line('h3', p)
-                    else:
-                        p = p.replace('#', '', 1)
-                        line('h4', p)
-                elif p.startswith('!['): # starts with image 
-                    # TODO: image is not working as of yet
-                    p = p.replace('![', '', 1)
-                    parts = p.split('](')
-                    if len(parts) > 1:
-                        temp = parts[1].split('alt')
-                    else:
-                        temp = parts[0]
-                    with tag('p'):
-                        line('p', temp) #fix
-                    """
-                        if len(parts) > 1:
-                            if len(temp) > 1:
-                                temp[1] = temp[1].replace(')', '', 1)
-                                line('img', src=temp[1], text_content=parts[0], alt=temp[0])
-                            else:
-                                temp[0] = temp[0].replace(')', '', 1)
-                                line('img', src=temp[0], text_content=parts[0], alt="image")
-                        else:
-                            line('img', text_content=parts[0], alt="image")
-                    """
-                elif p.startswith('['): # starts with links
-                    p = p.replace('[', '', 1)
-                    temp = p.split("](")
-                    imgtext = temp[0]
-                    link = ""
-                    atitle = ""
-                    if len(temp) > 1:
-                        if temp[1].__contains__(' '):
-                            temp2 = temp[1].split(' ')
-                            if len(temp2) > 1:
-                                temp2[0] = temp2[0].replace(')', '', 1)
-                                link = temp2[0]
-                                atitle = temp2[1]
-                            else:
-                                temp2[0] = temp2[0].replace(')', '', 1)
-                                link = temp2[0]
-                        else:
-                            temp[1] = temp[1].replace(')', '', 1)
-                            link = temp[1]
-                    else:
-                        if temp[0].__contains__(']:'):
-                            temp2 = temp[0].split(' ')
-                            if len(temp2) > 2: # build atitle
-                                for i in range(2, len(temp2)):
-                                    atitle += temp2[i] + " "
-                            if len(temp2) > 1:  # should work
-                                temp2[2] = temp2[2].replace(')', '', 1)
-                                link = temp2[2] # link
-                            #img text
-                            imgtext = temp2[1]
-                            #print(temp2[0]) # id
-                    with tag('p'):
-                        line('a', href=link, text_content=imgtext, title=atitle)
-                elif p.__contains__('**'): # bold text
-                    pos_begin = 0
-                    pos_end = 0
-                    counter = p.count('**')
-                    with tag('p'):
-                        while( counter >= 2):
-                            pos_begin = p.index('**')
-                            pos_end = p[pos_begin+2:].index('**') + pos_begin
-                            if pos_begin > 0:
-                                line('p', p[0:(pos_begin-1)])
-                            p = p.replace('**', '', 2)
-                            line('b', p[pos_begin:pos_end])
-                            p = p[pos_end:]
-                            counter-=2
-                        text(p)
-                elif p.__contains__('__'): # bold text version 2
-                    pos_begin = 0
-                    pos_end = 0
-                    counter = p.count('__')
-                    with tag('p'):
-                        while( counter >= 2):
-                            pos_begin = p.index('__')
-                            pos_end = p[pos_begin+2:].index('__') + pos_begin
-                            if pos_begin > 0:
-                                line('p', p[0:(pos_begin-1)])
-                            p = p.replace('__', '', 2)
-                            line('b', p[pos_begin:pos_end])
-                            p = p[pos_end:]
-                            counter -=2
-                        text(p)
-                elif p.__contains__('*'): # italics text
-                    pos_begin = 0
-                    pos_end = 0
-                    counter = p.count('*')
-                    with tag('p'):
-                        while( counter >= 2):
-                            pos_begin = p.index('*')
-                            pos_end = p[pos_begin+1:].index('*') + pos_begin
-                            if pos_begin > 0:
-                                line('p', p[0:(pos_begin-1)])
-                            p = p.replace('*', '', 2)
-                            line('i', p[pos_begin:pos_end])
-                            p = p[pos_end:]
-                            counter -=2
-                        text(p)
-                elif p.__contains__('_'): # italics text version 2
-                    pos_begin = 0
-                    pos_end = 0
-                    counter = p.count('_')
-                    with tag('p'):
-                        while( counter >= 2):
-                            pos_end = p[pos_begin+1:].index('_') + pos_begin
-                            if pos_begin > 0:
-                                line('p', p[0:(pos_begin-1)])
-                            p = p.replace('_', '', 2)
-                            line('i', p[pos_begin:pos_end])
-                            p = p[pos_end:]
-                            counter -=2
-                        text(p)
+            if p.startswith('#'): # starts with certain headers in markdown
+                if p.startswith('# '):
+                    p = p.replace('# ', '', 1)
+                    line('h1', p)
+                elif p.startswith('## '):
+                    p = p.replace('## ', '', 1)
+                    line('h2', p)
+                elif p.startswith('### '):
+                    p = p.replace('### ', '', 1)
+                    line('h3', p)
                 else:
-                    p = p.replace('\n', '<br>', 1)
-                    line('p', p)
+                    p = p.replace('#', '', 1)
+                    line('h4', p)
+            elif p.startswith('!['): # starts with image 
+                # TODO: image is not working as of yet
+                p = p.replace('![', '', 1)
+                parts = p.split('](')
+                if len(parts) > 1:
+                    temp = parts[1].split('alt')
+                else:
+                    temp = parts[0]
+                with tag('p'):
+                    line('p', temp) #fix
+                """
+                    if len(parts) > 1:
+                        if len(temp) > 1:
+                            temp[1] = temp[1].replace(')', '', 1)
+                            line('img', src=temp[1], text_content=parts[0], alt=temp[0])
+                        else:
+                            temp[0] = temp[0].replace(')', '', 1)
+                            line('img', src=temp[0], text_content=parts[0], alt="image")
+                    else:
+                        line('img', text_content=parts[0], alt="image")
+                """
+            elif p.startswith('['): # starts with links
+                p = p.replace('[', '', 1)
+                temp = p.split("](")
+                imgtext = temp[0]
+                link = ""
+                atitle = ""
+                if len(temp) > 1:
+                    if temp[1].__contains__(' '):
+                        temp2 = temp[1].split(' ')
+                        if len(temp2) > 1:
+                            temp2[0] = temp2[0].replace(')', '', 1)
+                            link = temp2[0]
+                            atitle = temp2[1]
+                        else:
+                            temp2[0] = temp2[0].replace(')', '', 1)
+                            link = temp2[0]
+                    else:
+                        temp[1] = temp[1].replace(')', '', 1)
+                        link = temp[1]
+                else:
+                    if temp[0].__contains__(']:'):
+                        temp2 = temp[0].split(' ')
+                        if len(temp2) > 2: # build atitle
+                            for i in range(2, len(temp2)):
+                                atitle += temp2[i] + " "
+                        if len(temp2) > 1:  # should work
+                            temp2[2] = temp2[2].replace(')', '', 1)
+                            link = temp2[2] # link
+                        #img text
+                        imgtext = temp2[1]
+                        #print(temp2[0]) # id
+                with tag('p'):
+                    line('a', href=link, text_content=imgtext, title=atitle)
+            elif p.__contains__('**'): # bold text
+                pos_begin = 0
+                pos_end = 0
+                counter = p.count('**')
+                with tag('p'):
+                    while( counter >= 2):
+                        pos_begin = p.index('**')
+                        pos_end = p[pos_begin+2:].index('**') + pos_begin
+                        if pos_begin > 0:
+                            line('p', p[0:(pos_begin-1)])
+                        p = p.replace('**', '', 2)
+                        line('b', p[pos_begin:pos_end])
+                        p = p[pos_end:]
+                        counter-=2
+                    text(p)
+            elif p.__contains__('__'): # bold text version 2
+                pos_begin = 0
+                pos_end = 0
+                counter = p.count('__')
+                with tag('p'):
+                    while( counter >= 2):
+                        pos_begin = p.index('__')
+                        pos_end = p[pos_begin+2:].index('__') + pos_begin
+                        if pos_begin > 0:
+                            line('p', p[0:(pos_begin-1)])
+                        p = p.replace('__', '', 2)
+                        line('b', p[pos_begin:pos_end])
+                        p = p[pos_end:]
+                        counter -=2
+                    text(p)
+            elif p.__contains__('*'): # italics text
+                pos_begin = 0
+                pos_end = 0
+                counter = p.count('*')
+                with tag('p'):
+                    while( counter >= 2):
+                        pos_begin = p.index('*')
+                        pos_end = p[pos_begin+1:].index('*') + pos_begin
+                        if pos_begin > 0:
+                            line('p', p[0:(pos_begin-1)])
+                        p = p.replace('*', '', 2)
+                        line('i', p[pos_begin:pos_end])
+                        p = p[pos_end:]
+                        counter -=2
+                    text(p)
+            elif p.__contains__('_'): # italics text version 2
+                pos_begin = 0
+                pos_end = 0
+                counter = p.count('_')
+                with tag('p'):
+                    while( counter >= 2):
+                        pos_end = p[pos_begin+1:].index('_') + pos_begin
+                        if pos_begin > 0:
+                            line('p', p[0:(pos_begin-1)])
+                        p = p.replace('_', '', 2)
+                        line('i', p[pos_begin:pos_end])
+                        p = p[pos_end:]
+                        counter -=2
+                    text(p)
+            else:
+                p = p.replace('\n', '<br>', 1)
+                line('p', p)
             p = p.replace('<p><p>', '<p>', 1)
             p = p.replace('</p></p>', '</p>', 1)
 
