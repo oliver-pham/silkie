@@ -27,9 +27,10 @@ class TextColor:
 
 
 class GeneratorOptions:
-    def __init__(self, input_path, stylesheet_url = None):
+    def __init__(self, input_path, stylesheet_url = None, lang = 'en-CA'):
         self.input_path = input_path
         self.stylesheet_url = stylesheet_url
+        self.lang = lang
 
 
 @click.command()
@@ -37,9 +38,10 @@ class GeneratorOptions:
 @click.help_option('-h', '--help')
 @click.option('-i', '--input', 'input_path', required=True, type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True), help='Path to the input file/folder')
 @click.option('-s', '--stylesheet', help='URL path to a stylesheet')
-def silkie(input_path, stylesheet):
+@click.option('-l', '--lang', help='Language of the HTML document [en-CA by default]')
+def silkie(input_path, stylesheet, lang):
     """Static site generator with the smoothness of silk"""
-    kwargs = dict(input_path=input_path, stylesheet_url=stylesheet)
+    kwargs = dict(input_path=input_path, stylesheet_url=stylesheet, lang=lang)
     options = GeneratorOptions(**{k: v for k, v in kwargs.items() if v is not None})
     # Clean build
     shutil.rmtree(DIST_DIRECTORY_PATH, ignore_errors=True)
@@ -256,13 +258,13 @@ def get_html_paragraphs_parsewithmd(line, title: str, tag, file_path: str) -> No
             p = p.replace('</p></p>', '</p>', 1)
 
 
-def get_html(file_path: str, stylesheet_url: str) -> str:
+def get_html(file_path: str, stylesheet_url: str, lang: str) -> str:
     """Return an indented HTML document with the content of the file"""
     doc, tag, text, line = Doc().ttl()
     title = get_title(file_path)
     doc.asis('<!DOCTYPE html>')
     with tag('html'):
-        doc.attr(lang='en')
+        doc.attr(lang=lang)
         get_html_head(doc, title, file_path, stylesheet_url)
         with tag('body'):
             file_extension = pathlib.Path(file_path).suffix
@@ -286,7 +288,7 @@ def generate_static_file(options: GeneratorOptions) -> None:
     Parse a text file and generate a single HTML file from its content.
     The generated files should be found inside `dist/` directory
     """
-    html = get_html(options.input_path, options.stylesheet_url)
+    html = get_html(options.input_path, options.stylesheet_url, options.lang)
     write_static_file(get_filename(options.input_path), content=html)
 
 if __name__ == '__main__':

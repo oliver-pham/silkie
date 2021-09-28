@@ -17,12 +17,14 @@ Options:
   -h, --help             Show this message and exit.
   -i, --input PATH       Path to the input file/folder  [required]
   -s, --stylesheet TEXT  URL path to a stylesheet
+  -l, --lang TEXT        Language of the HTML document [en-CA by default]
 ```
 
 ## Features
 - Generate HTML file(s) from a specified text file/directory
 - Detect the title of a file if it's the first line followed by two blank lines
 - Add custom styling to static site
+- Change HTML document language (`<html lang="{your-language}">`, `en-CA` by default)
 
 ## Getting Started
 
