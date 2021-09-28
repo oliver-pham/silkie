@@ -8,9 +8,8 @@ from os import path, makedirs
 from yattag import Doc, indent
 
 doc, tag, text = Doc().tagtext()
-
-SUPORTED_FILE_EXTENSION = ".txt"
-
+      
+SUPORTED_FILE_EXTENSIONS = ['.txt', '.md']
 DIST_DIRECTORY_PATH = path.join(
     path.dirname(path.realpath(__file__)), "dist")
 
@@ -27,43 +26,43 @@ class TextColor:
     UNDERLINE = '\033[4m'
 
 
+class GeneratorOptions:
+    def __init__(self, input_path, stylesheet_url = None):
+        self.input_path = input_path
+        self.stylesheet_url = stylesheet_url
+
+
 @click.command()
 @click.version_option("0.1.0", '-v', '--version')
 @click.help_option('-h', '--help')
-@click.option('-i', '--input', required=True, type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True), help='Path to the input file/folder')
+@click.option('-i', '--input', 'input_path', required=True, type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True), help='Path to the input file/folder')
 @click.option('-s', '--stylesheet', help='URL path to a stylesheet')
-def silkie(input, stylesheet):
+def silkie(input_path, stylesheet):
     """Static site generator with the smoothness of silk"""
+    kwargs = dict(input_path=input_path, stylesheet_url=stylesheet)
+    options = GeneratorOptions(**{k: v for k, v in kwargs.items() if v is not None})
     # Clean build
     shutil.rmtree(DIST_DIRECTORY_PATH, ignore_errors=True)
     try:
         # Create build folder
         makedirs(DIST_DIRECTORY_PATH, exist_ok=True)
         # Generate static file(s)
-        if path.isfile(input):
-            if pathlib.Path(input).suffix ==".txt" or pathlib.Path(input).suffix == ".md":
-                SUPORTED_FILE_EXTENSION = pathlib.Path(input).suffix
-            if stylesheet:
-                generate_static_file(input, stylesheet)
-            else:
-                generate_static_file(input)
-        if path.isdir(input):
-            for filepath in glob.glob(path.join(input, "*.txt")):
-                SUPORTED_FILE_EXTENSION = ".txt"
-                if stylesheet:
-                    generate_static_file(filepath, stylesheet)
-                else:
-                    generate_static_file(filepath)
-            for filepath in glob.glob(path.join(input, "*.md")):
-                SUPORTED_FILE_EXTENSION = ".md"
-                if stylesheet:
-                    generate_static_file(filepath, stylesheet)
-                else:
-                    generate_static_file(filepath)
+        if path.isfile(input_path) and is_filetype_supported(input_path):
+            generate_static_file(options)
+        if path.isdir(input_path):
+            for extension in SUPORTED_FILE_EXTENSIONS:
+                for filepath in glob.glob(path.join(input_path, "*" + extension)):
+                    options.input_path = filepath
+                    generate_static_file(options)
         
     except OSError as e:
         click.echo(
             f"{TextColor.FAIL}\u2715 Error: Build directory can't be created!{TextColor.ENDC}")
+
+
+def is_filetype_supported(file_path: str) -> bool:
+    file_extension = pathlib.Path(file_path).suffix
+    return SUPORTED_FILE_EXTENSIONS.count(file_extension) > 0
 
 
 def get_title(file_path: str) -> str:
@@ -94,7 +93,8 @@ def get_filename(file_path: str) -> str:
     linux distribution - works
     Windows 11 -seems to be only a windows 11 issue with above line being pathlib.Path(file_path.split('.')[1]).stem to work"""
 
-def get_html_head(doc, title: str, file_path: str, stylesheet_url: str) -> None:
+
+def get_html_head(doc, title: str, file_path: str, stylesheet_url: str = None) -> None:
     """Get the metadata of the file and append them to the HTML document"""
     with doc.tag('head'):
         doc.stag('meta', charset='utf-8')
@@ -105,7 +105,7 @@ def get_html_head(doc, title: str, file_path: str, stylesheet_url: str) -> None:
                 doc.text(title)
             else:
                 doc.text(get_filename(file_path))
-        if stylesheet_url:
+        if stylesheet_url is not None:
             doc.stag('link', rel='stylesheet', href=stylesheet_url)
 
 
@@ -256,7 +256,7 @@ def get_html_paragraphs_parsewithmd(line, title: str, tag, file_path: str) -> No
             p = p.replace('</p></p>', '</p>', 1)
 
 
-def get_html(file_path: str, stylesheet_url: str, extension: str) -> str:
+def get_html(file_path: str, stylesheet_url: str) -> str:
     """Return an indented HTML document with the content of the file"""
     doc, tag, text, line = Doc().ttl()
     title = get_title(file_path)
@@ -265,9 +265,10 @@ def get_html(file_path: str, stylesheet_url: str, extension: str) -> str:
         doc.attr(lang='en')
         get_html_head(doc, title, file_path, stylesheet_url)
         with tag('body'):
-            if extension == ".txt":
+            file_extension = pathlib.Path(file_path).suffix
+            if file_extension == ".txt":
                 get_html_paragraphs(line, title, file_path)
-            elif extension == ".md":
+            elif file_extension == ".md":
                 get_html_paragraphs_parsewithmd(line, title, tag, file_path)
     return indent(doc.getvalue())
 
@@ -280,14 +281,13 @@ def write_static_file(filename: str, content: str) -> None:
             f"{TextColor.OKGREEN}{TextColor.BOLD}\u2713 Success: Static file for '{filename}' is generated in dist/{TextColor.ENDC}")
 
 
-def generate_static_file(file_path: str, stylesheet_url: str = '') -> None:
+def generate_static_file(options: GeneratorOptions) -> None:
     """
     Parse a text file and generate a single HTML file from its content.
     The generated files should be found inside `dist/` directory
     """
-    SUPORTED_FILE_EXTENSION = pathlib.Path(file_path).suffix
-    html = get_html(file_path, stylesheet_url, SUPORTED_FILE_EXTENSION)
-    write_static_file(get_filename(file_path), content=html)
+    html = get_html(options.input_path, options.stylesheet_url)
+    write_static_file(get_filename(options.input_path), content=html)
 
 if __name__ == '__main__':
     silkie()
