@@ -120,7 +120,7 @@ def get_html_paragraphs(line, title: str, file_path: str) -> None:
         for p in paragraphs:
             line('p', p)
 
-def get_html_paragraphs_parsewithmd(line, title: str, tag, file_path: str) -> None:
+def get_html_paragraphs_parsewithmd(doc, line, title: str, tag, file_path: str) -> None:
     """ Append the approapriate markdown properties, .md headers, lists, links, images, tables"""
     with open(file_path, 'r',  encoding='utf-8') as f:
         paragraphs = f.read().strip().split("\n\n")
@@ -192,6 +192,8 @@ def get_html_paragraphs_parsewithmd(line, title: str, tag, file_path: str) -> No
                         #print(temp2[0]) # id
                 with tag('p'):
                     line('a', href=link, text_content=imgtext, title=atitle)
+            elif re.match('^\*{3,}$|^-{3,}$|^_{3,}$', p):
+                doc.stag('hr')
             elif p.__contains__('**'): # bold text
                 pos_begin = 0
                 pos_end = 0
@@ -271,7 +273,7 @@ def get_html(file_path: str, stylesheet_url: str, lang: str) -> str:
             if file_extension == ".txt":
                 get_html_paragraphs(line, title, file_path)
             elif file_extension == ".md":
-                get_html_paragraphs_parsewithmd(line, title, tag, file_path)
+                get_html_paragraphs_parsewithmd(doc, line, title, tag, file_path)
     return indent(doc.getvalue())
 
 
