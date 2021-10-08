@@ -28,19 +28,6 @@ class TextColor:
     UNDERLINE = '\033[4m'
 
 
-DEFAULT_CFG = 'config.ini'
-
-
-def configure(ctx, param, filename):
-    cfg = ConfigParser()
-    cfg.read(filename)
-    try:
-        options = dict(cfg['options'])
-    except KeyError:
-        options = {}
-    ctx.default_map = options
-
-
 class GeneratorOptions:
     def __init__(self, input_path, stylesheet_url=None, lang='en-CA'):
         self.input_path = input_path
@@ -51,81 +38,47 @@ class GeneratorOptions:
 @click.command()
 @click.version_option("0.1.0", '-v', '--version')
 @click.help_option('-h', '--help')
-@click.option('-i', '--input', 'input_path', required=True, type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True), help='Path to the input file/folder')
+@click.option('-i', '--input', 'input_path', type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True), help='Path to the input file/folder')
 @click.option('-s', '--stylesheet', help='URL path to a stylesheet')
 @click.option('-l', '--lang', help='Language of the HTML document [en-CA by default]')
-@click.option("-c", "--config",
-              type=click.Path(dir_okay=False),
-              default=DEFAULT_CFG,
-              callback=configure,
-              is_eager=True,
-              expose_value=False,
-              help='Read option defaults from the specified INI file',
-              show_default=True,)
-def silkie(input_path, stylesheet, lang, cfg):
+@click.option("-c", "--config", type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True), help='Read option defaults from the specified INI file')
+def silkie(input_path, stylesheet, lang, config):
     """Static site generator with the smoothness of silk"""
-    if cfg is not None:
-        try:
-            with open(cfg, "r", encoding="utf-8") as f:
-                config_item = json.loads(f)
+    try:
+        if config is not None:
+            with open(config, "r", encoding="utf-8") as f:
+                config_item = json.load(f)
                 if "input" in config_item:
-                    input_file = config_item["input"]
-                # else:
-                #     input_file = None
+                    input_path = config_item["input"]
+                else:
+                    input_path = None
                 if "stylesheet" in config_item:
                     stylesheet = config_item["stylesheet"]
                 if "lang" in config_item:
                     lang = config_item["lang"]
-            kwargs = dict(input_path=input_file,
-                          stylesheet_url=stylesheet, lang=lang)
-            options = GeneratorOptions(
-                **{k: v for k, v in kwargs.items() if v is not None})
-            # Clean build
-            shutil.rmtree(DIST_DIRECTORY_PATH, ignore_errors=True)
-            try:
-                # Create build folder
-                makedirs(DIST_DIRECTORY_PATH, exist_ok=True)
-                # Generate static file(s)
-                if path.isfile(input_path) and is_filetype_supported(input_path):
-                    generate_static_file(options)
-                if path.isdir(input_path):
-                    for extension in SUPORTED_FILE_EXTENSIONS:
-                        for filepath in glob.glob(path.join(input_path, "*" + extension)):
-                            options.input_path = filepath
-                            generate_static_file(options)
 
-            except OSError as e:
-                click.echo(
-                    f"{TextColor.FAIL}\u2715 Error: Build directory can't be created!{TextColor.ENDC}")
-        except FileNotFoundError:
-            print(f'Error: There is no Json File "{config}" !')
-        except json.JSONDecodeError:
-            print(f'Error:Invalid JSON syntax!" ')
-        if input is None:
-            print(f'Error: Input is not found! Please input correct file name.')
-            exit()
-    else:
         kwargs = dict(input_path=input_path,
                       stylesheet_url=stylesheet, lang=lang)
         options = GeneratorOptions(
             **{k: v for k, v in kwargs.items() if v is not None})
         # Clean build
         shutil.rmtree(DIST_DIRECTORY_PATH, ignore_errors=True)
-        try:
-            # Create build folder
-            makedirs(DIST_DIRECTORY_PATH, exist_ok=True)
-            # Generate static file(s)
-            if path.isfile(input_path) and is_filetype_supported(input_path):
-                generate_static_file(options)
-            if path.isdir(input_path):
-                for extension in SUPORTED_FILE_EXTENSIONS:
-                    for filepath in glob.glob(path.join(input_path, "*" + extension)):
-                        options.input_path = filepath
-                        generate_static_file(options)
-
-        except OSError as e:
-            click.echo(
-                f"{TextColor.FAIL}\u2715 Error: Build directory can't be created!{TextColor.ENDC}")
+        makedirs(DIST_DIRECTORY_PATH, exist_ok=True)
+        # Generate static file(s)
+        if path.isfile(input_path) and is_filetype_supported(input_path):
+            generate_static_file(options)
+        if path.isdir(input_path):
+            for extension in SUPORTED_FILE_EXTENSIONS:
+                for filepath in glob.glob(path.join(input_path, "*" + extension)):
+                    options.input_path = filepath
+                    generate_static_file(options)
+    except OSError as e:
+        click.echo(
+            f"{TextColor.FAIL}\u2715 Error: Build directory can't be created!{TextColor.ENDC}")
+    except FileNotFoundError:
+        print(f'Error: There is no Json File "{config}" !')
+    except json.JSONDecodeError:
+        print(f'Error:Invalid JSON syntax!" ')
 
 
 def is_filetype_supported(file_path: str) -> bool:
