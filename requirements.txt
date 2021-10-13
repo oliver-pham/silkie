@@ -1,5 +1,6 @@
 autopep8==1.5.7
 click==8.0.1
+Markdown==3.3.4
 pycodestyle==2.7.0
 toml==0.10.2
 yattag==1.14.0
