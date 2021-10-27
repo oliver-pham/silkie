@@ -30,6 +30,8 @@ Options:
 - Change HTML document language (`<html lang="{your-language}">`, `en-CA` by default)
 - Generate HTML file from a Markdown file (**Need Testing**)
 - Allow user to supply a JSON formatted configuration file
+- Parse front matter and apply the corresponding metadata fields (**Prototype Feature**)
+  - Check out [#21](https://github.com/oliver-pham/silkie/issues/21) to see which fields are supported
 
 ## Getting Started
 

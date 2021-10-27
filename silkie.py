@@ -1,11 +1,12 @@
-import pathlib
 import shutil
 import glob
 import click
 import json
 import markdown
 import re
+import frontmatter
 from os import path, makedirs
+from pathlib import Path
 from yattag import Doc, indent
 
 
@@ -27,25 +28,39 @@ class TextColor:
 
 
 class GeneratorOptions:
-    def __init__(self, input_path, stylesheet_url=None, lang='en-CA'):
-        self.input_path = input_path
-        self.stylesheet_url = stylesheet_url
-        self.lang = lang
-    
-    def __init__(self, config_file_path: str):
-        with open(config_file_path, "r", encoding="utf-8") as config_file:
-            config_items = json.load(config_file)
-            if "input" in config_items:
-                if path.exists(config_items["input"]):
-                    self.input_path = config_items["input"]
+    def __init__(self, input_path: str, *args, **kwargs):
+        self.config_file_path = kwargs.get('config_file_path', None)
+
+        if self.config_file_path is None:
+            self.input_path = input_path
+            self.stylesheet_url = kwargs.get('stylesheet_url', None)
+            self.lang = kwargs.get('lang', 'en-CA') or 'en-CA'
+        else:
+            with open(self.config_file_path, "r", encoding="utf-8") as config_file:
+                config_items = json.load(config_file)
+                if "input" in config_items:
+                    if path.exists(config_items["input"]):
+                        self.input_path = config_items["input"]
+                    else:
+                        raise FileNotFoundError(
+                            "Error: Input file can't be found!")
                 else:
-                    raise FileNotFoundError("Error: Input file can't be found!")
-            else:
-                raise FileNotFoundError("Error: Missing 'input' option!")
-            if "stylesheet" in config_items:
-                self.stylesheet_url = config_items["stylesheet"]
-            if "lang" in config_items:
-                self.lang = config_items["lang"]
+                    raise FileNotFoundError("Error: Missing 'input' option!")
+                if "stylesheet" in config_items:
+                    self.stylesheet_url = config_items["stylesheet"]
+                if "lang" in config_items:
+                    self.lang = config_items["lang"]
+
+    def load_metadata(self):
+        """Load metadata for the static site from the document's front matter"""
+        with open(self.input_path, 'r', encoding='utf-8') as f:
+            metadata, content = frontmatter.parse(f.read())
+            filename = get_filename(self.input_path)
+
+            self.description = metadata["description"] if "description" in metadata else ''
+            self.slug = metadata["slug"] if "slug" in metadata else filename
+            self.title = metadata["title"] if "title" in metadata else filename
+            self.content = content or ''
 
 
 @click.command()
@@ -57,24 +72,22 @@ class GeneratorOptions:
 @click.option("-c", "--config", type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True), help='Read option defaults from the specified INI file')
 def silkie(input_path, stylesheet, lang, config):
     """Static site generator with the smoothness of silk"""
-    try:    
-        if config is None:
-            kwargs = dict(input_path=input_path,
-                          stylesheet_url=stylesheet, lang=lang)
-            options = GeneratorOptions(
-                **{k: v for k, v in kwargs.items() if v is not None})
-        else:
-            options = GeneratorOptions(config)
+    try:
+        options = GeneratorOptions(
+            input_path, stylesheet_url=stylesheet, lang=lang, config_file_path=config)
         # Clean build
         shutil.rmtree(DIST_DIRECTORY_PATH, ignore_errors=True)
         makedirs(DIST_DIRECTORY_PATH, exist_ok=True)
         # Generate static file(s)
         if path.isfile(options.input_path) and is_filetype_supported(options.input_path):
+            options.load_metadata()
             generate_static_file(options)
         if path.isdir(options.input_path):
+            dir_path = options.input_path
             for extension in SUPORTED_FILE_EXTENSIONS:
-                for filepath in glob.glob(path.join(options.input_path, "*" + extension)):
+                for filepath in glob.glob(path.join(dir_path, "*" + extension)):
                     options.input_path = filepath
+                    options.load_metadata()
                     generate_static_file(options)
     except FileNotFoundError as file_error:
         click.echo(f'{TextColor.FAIL}\u2715 {str(file_error)}{TextColor.ENDC}')
@@ -85,7 +98,7 @@ def silkie(input_path, stylesheet, lang, config):
 
 
 def is_filetype_supported(file_path: str) -> bool:
-    file_extension = pathlib.Path(file_path).suffix
+    file_extension = Path(file_path).suffix
     return SUPORTED_FILE_EXTENSIONS.count(file_extension) > 0
 
 
@@ -103,63 +116,82 @@ def get_title(file_path: str) -> str:
 
 
 def get_filename(file_path: str) -> str:
-    return pathlib.Path(file_path).stem.split('.')[0]
+    return Path(file_path).stem.split('.')[0]
 
 
-def get_html_head(doc, title: str, file_path: str, stylesheet_url: str = None) -> None:
+def get_html_head(doc: Doc, options: GeneratorOptions) -> None:
     """Get the metadata of the file and append them to the HTML document"""
     with doc.tag('head'):
         doc.stag('meta', charset='utf-8')
         doc.stag('meta', name='viewport',
                  content='width=device-width, initial-scale=1')
+        doc.stag('meta', name='description', content=options.description)
+        doc.stag('meta', property='og:description', content=options.description)
         with doc.tag('title'):
-            if title:
-                doc.text(title)
-            else:
-                doc.text(get_filename(file_path))
-        if stylesheet_url is not None:
-            doc.stag('link', rel='stylesheet', href=stylesheet_url)
+            doc.text(options.title)
+        if options.stylesheet_url is not None:
+            doc.stag('link', rel='stylesheet', href=options.stylesheet_url)
 
 
-def get_html_paragraphs(line, title: str, file_path: str) -> None:
+def parse_text(line, options: GeneratorOptions) -> None:
     """Get all paragraphs from text file and append them to the HTML document"""
-    with open(file_path, 'r', encoding='utf-8') as f:
-        paragraphs = f.read()[len(title)+1: -1].strip().split("\n\n")
-        if title:
-            line('h1', title)
-        for p in paragraphs:
-            line('p', p)
+    options.title = get_title(options.input_path)
+    paragraphs = options.content[len(options.title)+1: -1].strip().split("\n\n")
+
+    if options.title:
+        line('h1', options.title)
+
+    for paragraph_text in paragraphs:
+        line('p', paragraph_text)
 
 
-def parse_markdown(doc, file_path: str) -> None:
+def parse_markdown(doc: Doc, content: str) -> None:
     """Convert Markdown to HTML and append it to the HTML document"""
-    with open(file_path, 'r',  encoding='utf-8') as markdown_file:
-        doc.asis(markdown.markdown(markdown_file.read().strip()))
+    doc.asis(markdown.markdown(content.strip()))
 
 
-def get_html(file_path: str, stylesheet_url: str, lang: str) -> str:
-    """Return an indented HTML document with the content of the file"""
+def get_html(options: GeneratorOptions) -> str:
     doc, tag, text, line = Doc().ttl()
-    title = get_title(file_path)
+
     doc.asis('<!DOCTYPE html>')
     with tag('html'):
-        doc.attr(lang=lang)
-        get_html_head(doc, title, file_path, stylesheet_url)
+        doc.attr(lang=options.lang)
+        get_html_head(doc, options)
         with tag('body'):
-            file_extension = pathlib.Path(file_path).suffix
+            line('h1', options.title)
+            file_extension = Path(options.input_path).suffix
             if file_extension == ".txt":
-                get_html_paragraphs(line, title, file_path)
+                parse_text(line, options)
             elif file_extension == ".md":
-                parse_markdown(doc, file_path)
+                parse_markdown(doc, options.content)
+
     return indent(doc.getvalue())
 
 
-def write_static_file(filename: str, content: str) -> None:
-    """Write the static file to `dist/` directory"""
-    with open(path.join(DIST_DIRECTORY_PATH, filename + ".html"), 'w+', encoding='utf-8') as static_file:
+def write_static_file(content: str, destination: Path, options: GeneratorOptions) -> None:
+    """Write the static file to the destination path"""
+    with destination.open('w+', encoding='utf-8') as static_file:
         static_file.write(content)
         click.echo(
-            f"{TextColor.OKGREEN}{TextColor.BOLD}\u2713 Success: Static file for '{filename}' is generated in dist/{TextColor.ENDC}")
+            f"{TextColor.OKGREEN}{TextColor.BOLD}\u2713 Success: Static file for '{options.slug}' is generated in dist/{TextColor.ENDC}")
+
+
+def build_folder_structure(options: GeneratorOptions) -> Path:
+    """
+    Set up folder structure of the build folder `dist/` based on 
+    the value of `slug` inside `GeneratorOptions`
+    
+    :returns: the file path to the generated file
+    """
+    route = Path(DIST_DIRECTORY_PATH).joinpath(Path(options.slug + ".html"))
+
+    if route.exists():
+        raise FileExistsError(
+            f'warn: Duplicate routes found!\n {options.slug} is already taken by another document')
+    dir_path = route.parent
+    dir_path.mkdir(parents=True, exist_ok=True)
+
+    return route
 
 
 def generate_static_file(options: GeneratorOptions) -> None:
@@ -167,8 +199,9 @@ def generate_static_file(options: GeneratorOptions) -> None:
     Parse a text file and generate a single HTML file from its content.
     The generated files should be found inside `dist/` directory
     """
-    html = get_html(options.input_path, options.stylesheet_url, options.lang)
-    write_static_file(get_filename(options.input_path), content=html)
+    html = get_html(options)
+    file_path = build_folder_structure(options)
+    write_static_file(content=html, destination=file_path, options=options)
 
 
 if __name__ == '__main__':
