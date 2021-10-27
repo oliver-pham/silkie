@@ -28,11 +28,7 @@ Options:
 - Detect the title of a file if it's the first line followed by two blank lines
 - Add custom styling to static site
 - Change HTML document language (`<html lang="{your-language}">`, `en-CA` by default)
-- Generate HTML file from a Markdown file (**Work In Progress**)
-  - [x] Parse Markdown Headings
-  - [x] Parse Markdown Italics & Bold (_BUGGY_)
-  - [x] Parse Markdown links
-  - [x] Parse Markdown horizontal rules
+- Generate HTML file from a Markdown file (**Need Testing**)
 - Allow user to supply a JSON formatted configuration file
 
 ## Getting Started
