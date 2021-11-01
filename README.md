@@ -1,5 +1,5 @@
 # Silkie
-
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 > Static site generator with the smoothness of silk
 
 Silkie is a simple and smooth static site generator. It can parse text files (".txt", ".ini" or ".md" files) and
@@ -72,8 +72,7 @@ Options:
    ```
 
 ## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Please read the [Contribution Guide](CONTRIBUTING.md) before developing any changes.
 
 ## License
 

@@ -128,8 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# VS Code Configuration
-.vscode
 
 #Windows 11
 Scripts/
