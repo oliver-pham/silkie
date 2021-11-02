@@ -13,10 +13,6 @@ from yattag import Doc, indent
 import silkie.definitions as definitions
 
 
-SUPORTED_FILE_EXTENSIONS = [".txt", ".md", ".ini"]
-DIST_DIRECTORY_PATH = path.join(path.dirname(path.realpath(__file__)), "dist")
-
-
 class TextColor:
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
@@ -88,11 +84,14 @@ def silkie(input_path, stylesheet, lang, config):
     """Static site generator with the smoothness of silk"""
     try:
         options = GeneratorOptions(
-            input_path, stylesheet_url=stylesheet, lang=lang, config_file_path=config
+            input_path,
+            stylesheet_url=stylesheet,
+            lang=lang,
+            config_file_path=config,
         )
         # Clean build
-        shutil.rmtree(DIST_DIRECTORY_PATH, ignore_errors=True)
-        makedirs(DIST_DIRECTORY_PATH, exist_ok=True)
+        shutil.rmtree(definitions.DIST_DIRECTORY_PATH, ignore_errors=True)
+        makedirs(definitions.DIST_DIRECTORY_PATH, exist_ok=True)
         # Generate static file(s)
         if path.isfile(options.input_path) and is_filetype_supported(
             options.input_path
@@ -101,7 +100,7 @@ def silkie(input_path, stylesheet, lang, config):
             generate_static_file(options)
         if path.isdir(options.input_path):
             dir_path = options.input_path
-            for extension in SUPORTED_FILE_EXTENSIONS:
+            for extension in definitions.SUPORTED_FILE_EXTENSIONS:
                 for filepath in glob.glob(path.join(dir_path, "*" + extension)):
                     options.input_path = filepath
                     options.load_metadata()
@@ -116,7 +115,7 @@ def silkie(input_path, stylesheet, lang, config):
 
 def is_filetype_supported(file_path: str) -> bool:
     file_extension = Path(file_path).suffix
-    return SUPORTED_FILE_EXTENSIONS.count(file_extension) > 0
+    return definitions.SUPORTED_FILE_EXTENSIONS.count(file_extension) > 0
 
 
 def get_title(file_path: str) -> str:
@@ -141,7 +140,11 @@ def get_html_head(doc: Doc, options: GeneratorOptions) -> None:
     """Get the metadata of the file and append them to the HTML document"""
     with doc.tag("head"):
         doc.stag("meta", charset="utf-8")
-        doc.stag("meta", name="viewport", content="width=device-width, initial-scale=1")
+        doc.stag(
+            "meta",
+            name="viewport",
+            content="width=device-width, initial-scale=1",
+        )
         doc.stag("meta", name="description", content=options.description)
         doc.stag("meta", property="og:description", content=options.description)
         with doc.tag("title"):
@@ -204,7 +207,7 @@ def build_folder_structure(options: GeneratorOptions) -> Path:
 
     :returns: the file path to the generated file
     """
-    route = Path(DIST_DIRECTORY_PATH).joinpath(Path(options.slug + ".html"))
+    route = Path(definitions.DIST_DIRECTORY_PATH).joinpath(Path(options.slug + ".html"))
 
     if route.exists():
         raise FileExistsError(
@@ -225,7 +228,3 @@ def generate_static_file(options: GeneratorOptions) -> None:
     html = get_html(options)
     file_path = build_folder_structure(options)
     write_static_file(content=html, destination=file_path, options=options)
-
-
-if __name__ == "__main__":
-    silkie()

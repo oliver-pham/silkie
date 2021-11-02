@@ -2,13 +2,12 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 > Static site generator with the smoothness of silk
 
-Silkie is a simple and smooth static site generator. It can parse text files (".txt", ".ini" or ".md" files) and
-generate HTML files from them.
+Silkie is a simple and smooth static site generator. It can parse text files (".txt") and Markdown files (".md") and generate HTML files from them.
 
 Check out the [demo](https://oliver-pham.github.io/silkie/dist/The%20Adventure%20of%20the%20Speckled%20Band) generated from this [text file](https://raw.githubusercontent.com/Seneca-CDOT/topics-in-open-source-2021/main/release-1/Sherlock-Holmes-Selected-Stories/The%20Adventure%20of%20the%20Speckled%20Band.txt) (with help from [new.css](https://newcss.net/)).
 
 ```
-$ python3 silkie.py -h
+$ python -m silkie -h
 Usage: silkie.py [OPTIONS]
 
   Static site generator with the smoothness of silk
@@ -46,30 +45,50 @@ Options:
 
 1. Clone the repository
 2. Create a virtual environment
-   ```
-   cd silkie && python -m venv .
-   ```
+  ```
+  cd silkie && python -m venv .
+  ```
 3. Activate your virtual environment
-   - **Windows:** `bin\Scripts\activate.bat`
-   - **Unix or MacOS**: `source bin/activate`
+  - **Windows:** `bin\Scripts\activate.bat`
+  - **Unix or MacOS**: `source bin/activate`
 4. Install the dependency packages
-   ```
-   pip install -r requirements.txt
-   ```
+  ```
+  pip install -r requirements.txt
+  ```
 
 ## Usage
 
 1. Activate your virtual environment (only if you have not done that)
 2. Run the program
 
-   ```
-   python silkie.py -h
-
-   Other examples:
-     python silkie.py -i examples/md/markdowntest1.md
-
-     python silkie.py --config examples/test/ssg-config.ini
-   ```
+### Input file
+```
+python -m silkie -i tests/data/text/The Adventure of the Six Napoleans.txt
+```
+### Input directory
+```
+python -m silkie -i tests/data/text
+```
+### Custom stylesheet
+```
+python -m silkie -i tests/data/text/Silver Blaze.txt -s https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css
+```
+### Custom document language
+```
+python -m silkie -i tests/data/text/Silver Blaze.txt -l fr
+```
+### JSON configuration file
+```
+python -m silkie -c config/all_text_files.json
+```
+Available attributes of a configuration file include: `input`, `lang`, and `stylesheet`
+### Frontmatter
+Supported keywords:
+|      Name     |   Type   |           Default           |                                                         Usage                                                         |
+|:-------------:|:--------:|:---------------------------:|:---------------------------------------------------------------------------------------------------------------------:|
+| `slug`        | `string` | File path                   | Customize the document URL route, e.g. `/docs/example.html`                                                           |
+| `title`       | `string` | Markdown title or file name | The text title of the document. Automatically added at the top of your doc if it does not contain any Markdown title. |
+| `description` | `string` |                             | The description of your document, which will added to document metadata for search engine optimization.               |
 
 ## Contributing
 Please read the [Contribution Guide](CONTRIBUTING.md) before developing any changes.
