@@ -1,5 +1,8 @@
 # Silkie
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+
 > Static site generator with the smoothness of silk
 
 Silkie is a simple and smooth static site generator. It can parse text files (".txt") and Markdown files (".md") and generate HTML files from them.
@@ -8,7 +11,7 @@ Check out the [demo](https://oliver-pham.github.io/silkie/dist/The%20Adventure%2
 
 ```
 $ python -m silkie -h
-Usage: silkie.py [OPTIONS]
+Usage: python -m silkie [OPTIONS]
 
   Static site generator with the smoothness of silk
 
@@ -79,7 +82,7 @@ python -m silkie -i tests/data/text/Silver Blaze.txt -l fr
 ```
 ### JSON configuration file
 ```
-python -m silkie -c config/all_text_files.json
+python -m silkie -c tests/data/config/all_text_files.json
 ```
 Available attributes of a configuration file include: `input`, `lang`, and `stylesheet`
 ### Frontmatter
