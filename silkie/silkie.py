@@ -1,65 +1,17 @@
 import glob
-import json
 import re
 import shutil
+from json.decoder import JSONDecodeError
 from os import makedirs, path
 from pathlib import Path
 
 import click
-import frontmatter
 import markdown
 from yattag import Doc, indent
 
 import silkie.definitions as definitions
-
-
-class TextColor:
-    HEADER = "\033[95m"
-    OKBLUE = "\033[94m"
-    OKCYAN = "\033[96m"
-    OKGREEN = "\033[92m"
-    WARNING = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-
-
-class GeneratorOptions:
-    def __init__(self, input_path: str, *args, **kwargs):
-        self.config_file_path = kwargs.get("config_file_path", None)
-
-        if self.config_file_path is None:
-            self.input_path = input_path
-            self.stylesheet_url = kwargs.get("stylesheet_url", None)
-            self.lang = kwargs.get("lang", "en-CA") or "en-CA"
-        else:
-            with open(self.config_file_path, "r", encoding="utf-8") as config_file:
-                config_items = json.load(config_file)
-                if "input" in config_items:
-                    if path.exists(config_items["input"]):
-                        self.input_path = config_items["input"]
-                    else:
-                        raise FileNotFoundError("Error: Input file can't be found!")
-                else:
-                    raise FileNotFoundError("Error: Missing 'input' option!")
-                if "stylesheet" in config_items:
-                    self.stylesheet_url = config_items["stylesheet"]
-                if "lang" in config_items:
-                    self.lang = config_items["lang"]
-
-    def load_metadata(self):
-        """Load metadata for the static site from the document's front matter"""
-        with open(self.input_path, "r", encoding="utf-8") as f:
-            metadata, content = frontmatter.parse(f.read())
-            filename = get_filename(self.input_path)
-
-            self.description = (
-                metadata["description"] if "description" in metadata else ""
-            )
-            self.slug = metadata["slug"] if "slug" in metadata else filename
-            self.title = metadata["title"] if "title" in metadata else filename
-            self.content = content or ""
+from silkie.options import GeneratorOptions
+from silkie.utils import TextColor, is_filetype_supported
 
 
 @click.command()
@@ -107,15 +59,10 @@ def silkie(input_path, stylesheet, lang, config):
                     generate_static_file(options)
     except FileNotFoundError as file_error:
         click.echo(f"{TextColor.FAIL}\u2715 {str(file_error)}{TextColor.ENDC}")
-    except json.JSONDecodeError as json_error:
+    except JSONDecodeError as json_error:
         click.echo(f"{TextColor.FAIL}\u2715 {str(json_error)}{TextColor.ENDC}")
     except OSError as os_error:
         click.echo(f"{TextColor.FAIL}\u2715 {str(os_error)}{TextColor.ENDC}")
-
-
-def is_filetype_supported(file_path: str) -> bool:
-    file_extension = Path(file_path).suffix
-    return definitions.SUPORTED_FILE_EXTENSIONS.count(file_extension) > 0
 
 
 def get_title(file_path: str) -> str:
@@ -130,10 +77,6 @@ def get_title(file_path: str) -> str:
         if title is not None:
             return title.group(0).strip()
     return ""
-
-
-def get_filename(file_path: str) -> str:
-    return Path(file_path).stem.split(".")[0]
 
 
 def get_html_head(doc: Doc, options: GeneratorOptions) -> None:
@@ -178,7 +121,6 @@ def get_html(options: GeneratorOptions) -> str:
         doc.attr(lang=options.lang)
         get_html_head(doc, options)
         with tag("body"):
-            line("h1", options.title)
             file_extension = Path(options.input_path).suffix
             if file_extension == ".txt":
                 parse_text(line, options)
