@@ -49,11 +49,11 @@ Options:
 1. Clone the repository
 2. Create a virtual environment
   ```
-  cd silkie && python -m venv .
+  cd silkie && python -m venv .venv
   ```
 3. Activate your virtual environment
-  - **Windows:** `bin\Scripts\activate.bat`
-  - **Unix or MacOS**: `source bin/activate`
+  - **Windows:** `.venv\Scripts\activate.bat`
+  - **Unix or MacOS**: `source .venv/bin/activate`
 4. Install the dependency packages
   ```
   pip install -r requirements.txt
