@@ -10,7 +10,7 @@ from silkie.silkie import get_html
     "config_file_path, expected_output_html",
     [
         (
-            str(Path("tests", "data", "config", "single_text_file.json")),
+            str(Path("tests", "data", "single_text_file.json")),
             Path("tests", "fixture", "text", "Lorem Ipsum.html").read_text().strip(),
         ),
         (
