@@ -22,16 +22,24 @@ class GeneratorOptions:
             with open(self.config_file_path, "r", encoding="utf-8") as config_file:
                 config_items = json.load(config_file)
                 if "input" in config_items:
-                    if Path(config_items["input"]).exists():
+                    input_file_path = Path(config_items["input"])
+                    if input_file_path.exists():
                         self.input_path = config_items["input"]
+                        self.content = input_file_path.read_text()
                     else:
                         raise FileNotFoundError("Error: Input file can't be found!")
                 else:
                     raise FileNotFoundError("Error: Missing 'input' option!")
+
                 if "stylesheet" in config_items:
                     self.stylesheet_url = config_items["stylesheet"]
+                else:
+                    self.stylesheet_url = None
+
                 if "lang" in config_items:
                     self.lang = config_items["lang"]
+                else:
+                    self.lang = "en-CA"
 
         # Initialize document metadata
         self.description = ""
