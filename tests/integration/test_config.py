@@ -23,6 +23,12 @@ from silkie.silkie import get_html
             .read_text()
             .strip(),
         ),
+        (
+            str(Path("tests", "data", "config", "single_text_file_custom_lang.json")),
+            Path("tests", "fixture", "text", "Lorem Ipsum (custom lang).html")
+            .read_text()
+            .strip(),
+        ),
     ],
 )
 def test_config_to_html(config_file_path, expected_output_html):
