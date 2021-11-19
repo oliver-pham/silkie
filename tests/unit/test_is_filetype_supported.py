@@ -1,31 +1,31 @@
 from silkie.utils import is_filetype_supported
 
 
-def test_supported_windows_file_path1():
+def test_txt_extension_with_absolute_path():
     file_path = r"C:\Documents\test.txt"
     assert is_filetype_supported(file_path) == True
 
 
-def test_supported_windows_file_path2():
+def test_txt_extension_with_relative_path():
     file_path = "/Users/anonymous/Documents/test.txt"
     assert is_filetype_supported(file_path) == True
 
 
-def test_supported_windows_file_path3():
+def test_path_to_directory():
     file_path = "/Users/anonymous/Documents/test/"
     assert is_filetype_supported(file_path) == False, "path to a directory error"
 
 
-def ttest_supported_windows_file_path4():
+def test_invalid_extension():
     file_path = "/Users/anonymous/Documents/test.rc"
     assert is_filetype_supported(file_path) == False, "Invalid extension error"
 
 
-def test_supported_windows_file_path5():
+def test_md_extension_with_relative_path():
     file_path = "/Users/anonymous/Documents/test.md"
     assert is_filetype_supported(file_path) == True
 
 
-def test_supported_windows_file_path6():
+def test_empty_extension():
     file_path = "/Users/anonymous/Documents/test"
     assert is_filetype_supported(file_path) == False, "empty extension error"
