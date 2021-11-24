@@ -86,12 +86,14 @@ python -m silkie -c tests/data/config/all_text_files.json
 ```
 Available attributes of a configuration file include: `input`, `lang`, and `stylesheet`
 ### Frontmatter
-Supported keywords:
+Supported keywords:  
+
 |      Name     |   Type   |           Default           |                                                         Usage                                                         |
 |:-------------:|:--------:|:---------------------------:|:---------------------------------------------------------------------------------------------------------------------:|
 | `slug`        | `string` | File path                   | Customize the document URL route, e.g. `/docs/example.html`                                                           |
 | `title`       | `string` | Markdown title or file name | The text title of the document. Automatically added at the top of your doc if it does not contain any Markdown title. |
 | `description` | `string` |                             | The description of your document, which will added to document metadata for search engine optimization.               |
+
 
 ## Contributing
 Please read the [Contribution Guide](CONTRIBUTING.md) before developing any changes.
