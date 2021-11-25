@@ -1,3 +1,4 @@
-from . import silkie
+import sys
+from .cli import silkie
 
-silkie()
+sys.exit(silkie())
