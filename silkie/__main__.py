@@ -1,4 +1,3 @@
-from silkie.silkie import silkie
+from . import silkie
 
-if __name__ == "__main__":
-    silkie()
+silkie()
