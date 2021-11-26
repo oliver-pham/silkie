@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 
 from silkie.options import GeneratorOptions
-from silkie.silkie import get_html
+from silkie import get_html
 
 
 @pytest.mark.parametrize(

@@ -12,7 +12,7 @@ from .utils import TextColor, is_filetype_supported
 
 
 @click.command()
-@click.version_option("1.0.5", "-v", "--version")
+@click.version_option("1.0.7", "-v", "--version")
 @click.help_option("-h", "--help")
 @click.option(
     "-i",
@@ -27,7 +27,7 @@ from .utils import TextColor, is_filetype_supported
     "-c",
     "--config",
     type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
-    help="Read option defaults from the specified INI file",
+    help="Path to a JSON-formatted configuration file",
 )
 def silkie(input_path, stylesheet, lang, config):
     """Static site generator with the smoothness of silk"""

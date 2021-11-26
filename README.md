@@ -1,5 +1,18 @@
 # Silkie
 
+```
+     __//
+cf  /.__.\
+    \ \/ /
+ '__/    \
+  \-      )
+   \_____/
+_____|_|_____
+     " "
+ S I L K I E
+```
+[Chicken ASCII Art](http://www.ascii-art.de/ascii/c/chicken.txt)
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
@@ -10,8 +23,8 @@ Silkie is a simple and smooth static site generator. It can parse text files (".
 Check out the [demo](https://oliver-pham.github.io/silkie/dist/The%20Adventure%20of%20the%20Speckled%20Band) generated from this [text file](https://raw.githubusercontent.com/Seneca-CDOT/topics-in-open-source-2021/main/release-1/Sherlock-Holmes-Selected-Stories/The%20Adventure%20of%20the%20Speckled%20Band.txt) (with help from [new.css](https://newcss.net/)).
 
 ```
-$ python -m silkie -h
-Usage: python -m silkie [OPTIONS]
+$ silkie -h
+Usage: silkie [OPTIONS]
 
   Static site generator with the smoothness of silk
 
@@ -35,56 +48,66 @@ Options:
 - Parse front matter and apply the corresponding metadata fields (**Prototype Feature**)
   - Check out [#21](https://github.com/oliver-pham/silkie/issues/21) to see which fields are supported
 
-## Getting Started
+## Installation
 
-### Prerequisites
+```
+$ pip install silkie
+```
 
-- Python >= 3.9.0
-- Pip >= 21.2.4
+Check if you already have installed Silkie:
 
-### Installation
+```
+$ silkie -v
+```
 
-**Note**: if you have both versions of Python (2 & 3) installed, then you should replace every `python` command with `python3` and `pip` command with `pip3`.
+You can also run Silkie as a package:
 
-1. Clone the repository
-2. Create a virtual environment
-  ```
-  cd silkie && python -m venv .venv
-  ```
-3. Activate your virtual environment
-  - **Windows:** `.venv\Scripts\activate.bat`
-  - **Unix or MacOS**: `source .venv/bin/activate`
-4. Install the dependency packages
-  ```
-  pip install -r requirements.txt
-  ```
+```
+$ python -m silkie -v
+```
 
 ## Usage
 
-1. Activate your virtual environment (only if you have not done that)
-2. Run the program
-
 ### Input file
+
 ```
-python -m silkie -i tests/data/text/The Adventure of the Six Napoleans.txt
+$ silkie -i tests/data/text/The Adventure of the Speckled Band.txt
 ```
+
 ### Input directory
+
 ```
-python -m silkie -i tests/data/text
+$ silkie -i tests/data/text
 ```
+
 ### Custom stylesheet
+
 ```
-python -m silkie -i tests/data/text/Silver Blaze.txt -s https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css
+$ silkie -i tests/data/text/Silver Blaze.txt -s https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css
 ```
+
 ### Custom document language
+
 ```
-python -m silkie -i tests/data/text/Silver Blaze.txt -l fr
+$ silkie -i tests/data/text/Silver Blaze.txt -l fr
 ```
+
 ### JSON configuration file
+
 ```
-python -m silkie -c tests/data/config/all_text_files.json
+$ silkie -c tests/data/config/all_markdown_files.json
 ```
-Available attributes of a configuration file include: `input`, `lang`, and `stylesheet`
+
+Like how you specify the options verbosely for a regular input file, there are keywords can be set in your JSON file: `input`, `lang`, and `stylesheet`
+
+```json
+{
+    "input": "tests/data/text/Lorem Ipsum.txt",
+    "stylesheet": "https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css",
+    "lang": "fr"
+}
+```
+
 ### Frontmatter
 Supported keywords:  
 
