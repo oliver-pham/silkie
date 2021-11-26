@@ -34,12 +34,12 @@ Options:
   -i, --input PATH       Path to the input file/folder  [required]
   -s, --stylesheet TEXT  URL path to a stylesheet
   -l, --lang TEXT        Language of the HTML document [en-CA by default]
-  -c, --config FILE      Read option defaults from the specified INI file
+  -c, --config FILE      Path to a JSON-formatted configuration file
 ```
 
 ## Features
 
-- Generate HTML file(s) from a specified text file/directory
+- Generate HTML file(s) from a specified text file
 - Detect the title of a file if it's the first line followed by two blank lines
 - Add custom styling to static site
 - Change HTML document language (`<html lang="{your-language}">`, `en-CA` by default)
@@ -72,12 +72,6 @@ $ python -m silkie -v
 
 ```
 $ silkie -i tests/data/text/The Adventure of the Speckled Band.txt
-```
-
-### Input directory
-
-```
-$ silkie -i tests/data/text
 ```
 
 ### Custom stylesheet
